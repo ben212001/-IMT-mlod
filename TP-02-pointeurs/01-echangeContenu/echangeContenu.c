@@ -5,10 +5,8 @@
 
 // TODO implementer echangeContenu
 
-
-
 void echangeContenu (int *a, int *b){
-    int *c = *a;
+    int c = *a;
     *a = *b;
     *b = c;
 }
