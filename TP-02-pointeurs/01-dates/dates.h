@@ -24,4 +24,10 @@ typedef struct {
 void initialiseDate(Date *d);
 void afficheDate(Date *d);
 Date creerDateParCopie();
+Date *newDate();
+bool estBissextile(unsigned int annee);
+unsigned int nbreJours(Month mois, unsigned int annee);
+bool dateValide(Date uneDate);
+int jourDansAnnee (Date uneDate);
+
 
