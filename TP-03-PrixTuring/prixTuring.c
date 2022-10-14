@@ -54,43 +54,46 @@ typedef struct {
 	char* field;
 } Winner;
 
-Winner readWinner(){
-		Winner winner;
-		winner.year = scanLineAsInt();
-		winner.name = scanLine();
-		winner.field = scanLine();
-		return winner;
-}
+typedef struct {
+	int taille;
+	Winner *valeurs;
+} TableauWinners;
 
 void readWinners(){
-	int nbGagnants = scanLineAsInt();
-	Winner winners[nbGagnants];
-	for (int i=0; i<nbGagnants; i++){
-		winners[i]=readWinner();
+	int nbGagnants=scanLineAsInt();
+	TableauWinners *allWinners;
+	allWinners->taille = nbGagnants;
+	allWinners->valeurs = calloc(nbGagnants, sizeof(Winner));
+	for (int i=0; i<nbGagnants*3; i++){
+		if (i==0 || i%3==0)
+			allWinners->valeurs[i]=scanLineAsInt();
+		else allWinners->valeurs=scanLine();
 	}
 }
 
-char *printWinner(Winner winner){
+/*char *printWinner(Winner winner){
 	printf("%i\n", winner.year);
 	printf("%s\n", winner.name);
 	printf("%s\n", winner.field);
 	return *winner.name;
-}
+}*/
 
-Winner *printWinners(){
+/* Winner *printWinners(){
 	int nbGagnants = scanLineAsInt();
 	Winner *tousGagnants[nbGagnants];
 	for (int i=0; i<nbGagnants; i++){
 		tousGagnants[i]=printWinner(readWinner());
 	}
 	return tousGagnants;
-}
+}*/
 
 int main(void) {
-	int nbGagnants = scanLineAsInt();
-	for (int i=0; i<nbGagnants; i++){
-		printf("%p", printWinners()[i]);
-	}
+
+	readWinners();
+	//int nbGagnants = scanLineAsInt();
+	//for (int i=0; i<nbGagnants; i++){
+	//	printf("%p", printWinners()[i]);
+	//}
 
 
 	//int nbGagnants = scanLineAsInt();
