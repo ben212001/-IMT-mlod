@@ -11,12 +11,19 @@ bool estVide(Liste l) {
 
 // créer une liste d'un seul élément contenant la valeur v
 Liste creer(Element v){
-	return TODO;
+	Liste lst = (Liste) malloc(sizeof(Cellule));
+	if (!estVide(lst)){
+		lst->val = v;
+		lst->suiv =NULL;
+	}
+	return lst;
 }
 
 // ajoute l'élément v en tete de la liste l
 Liste ajoutTete(Element v, Liste l) {
-	return TODO;
+	Liste lst = creer(v);
+	lst->suiv = &(l->val);
+	return lst;
 }
 
 
@@ -30,6 +37,13 @@ void afficheElement(Element e) {
 // Attention la liste peut être vide !
 // version itérative
 void afficheListe_i(Liste l) {
+	while (l!=NULL){
+		printf("%i", *l);
+		l++;
+		Liste a = l->suiv;
+
+	}
+
 	TODO;
 }
 
