@@ -54,21 +54,45 @@ typedef struct {
 	char* field;
 } Winner;
 
-void readWinner(){
-	for (int i=0; i<scanLineAsInt(); i++){
+Winner readWinner(){
 		Winner winner;
 		winner.year = scanLineAsInt();
 		winner.name = scanLine();
 		winner.field = scanLine();
-		printf("%i\n", winner.year);
-		printf("%s\n", winner.name);
-		printf("%s\n", winner.field);
+		return winner;
+}
+
+void readWinners(){
+	int nbGagnants = scanLineAsInt();
+	Winner winners[nbGagnants];
+	for (int i=0; i<nbGagnants; i++){
+		winners[i]=readWinner();
 	}
 }
 
-int main(void)
-{
-	readWinner();
+char *printWinner(Winner winner){
+	printf("%i\n", winner.year);
+	printf("%s\n", winner.name);
+	printf("%s\n", winner.field);
+	return *winner.name;
+}
+
+Winner *printWinners(){
+	int nbGagnants = scanLineAsInt();
+	Winner *tousGagnants[nbGagnants];
+	for (int i=0; i<nbGagnants; i++){
+		tousGagnants[i]=printWinner(readWinner());
+	}
+	return tousGagnants;
+}
+
+int main(void) {
+	int nbGagnants = scanLineAsInt();
+	for (int i=0; i<nbGagnants; i++){
+		printf("%p", printWinners()[i]);
+	}
+
+
 	//int nbGagnants = scanLineAsInt();
 	//printf("nbGagnants = %i\n",nbGagnants);
 	

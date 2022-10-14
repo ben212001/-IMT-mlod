@@ -28,7 +28,6 @@ Date *newDate(){
     Date *d;
     d = (Date *) malloc(sizeof(Date));
     initialiseDate(d);
-    free(d);
     return d;
 }
 
