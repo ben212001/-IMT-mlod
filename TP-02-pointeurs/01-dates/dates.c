@@ -91,7 +91,7 @@ bool dateValide(Date uneDate){
 
 int jourDansAnnee (Date uneDate){
     int sum =0;
-    if (uneDate.mois >2)
+    if (uneDate.mois >=2)
         for (int i=1; i<uneDate.mois; i++)
             sum += nbreJours(i, uneDate.annee);
         return sum + uneDate.jour;
