@@ -59,7 +59,7 @@ typedef struct {
 	Winner *valeurs;
 } TableauWinners;
 
-void readWinners(){
+Winner **readWinners(){
 	int nbGagnants=scanLineAsInt();
 	TableauWinners *allWinners;
 	allWinners->taille = nbGagnants;
@@ -69,6 +69,7 @@ void readWinners(){
 			allWinners->valeurs[i]=scanLineAsInt();
 		else allWinners->valeurs=scanLine();
 	}
+	return allWinners.valeurs;
 }
 
 /*char *printWinner(Winner winner){
@@ -87,7 +88,7 @@ void readWinners(){
 	return tousGagnants;
 }*/
 
-int main(void) {
+int main(void){
 
 	readWinners();
 	//int nbGagnants = scanLineAsInt();
