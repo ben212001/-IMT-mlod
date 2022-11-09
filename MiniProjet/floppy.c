@@ -28,7 +28,7 @@
 #define MAX_TUBES 100
 #define FLOPPY_RADIUS 24
 #define TUBES_WIDTH 80
-#define MAX_PORTAILS MAX_TUBES/10
+#define MAX_PORTAILS MAX_TUBES/10                    //je souhaite créer un portail par lot de 10 tuyaux
 
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
@@ -48,7 +48,7 @@ typedef struct Tubes {
 typedef struct Portails {
     Rectangle rec;
     Color color;
-} Portails;
+} Portails;                                          //création du struct Portails
 
 //------------------------------------------------------------------------------------
 // Global Variables Declaration
@@ -60,17 +60,14 @@ static bool gameOver = false;
 static bool pause = false;
 static int score = 0;
 static int hiScore = 0;
-static int posTuyauAvecPortail = 0;
-static int positionTuyauDizaine = 0;
-static int incrementPortail = 0;
 
 static Floppy floppy = { 0 };
 static Tubes tubes[MAX_TUBES*2] = { 0 };
 static Vector2 tubesPos[MAX_TUBES] = { 0 };
 static int tubesSpeedX = 0;
 static bool superfx = false;
-static Portails portails[MAX_PORTAILS] = { 0 };
-static Vector2 portailsPos[MAX_PORTAILS] = { 0 };
+static Portails portails[MAX_PORTAILS] = { 0 };      //je crée le tableau qui contiendra tous les portails existants
+static Vector2 portailsPos[MAX_PORTAILS] = { 0 };    //je crée le tableau qui contient les coordonées de position de chaque portail
 
 //------------------------------------------------------------------------------------
 // Module Functions Declaration (local)
@@ -126,6 +123,9 @@ void InitGame(void)
     floppy.radius = FLOPPY_RADIUS;
     floppy.position = (Vector2){80, screenHeight/2 - floppy.radius};
     tubesSpeedX = 2;
+    int posTuyauAvecPortail = 0;
+    int positionTuyauDizaine = 0;
+    int incrementPortail = 0;
 
     for (int i = 0; i < MAX_TUBES; i++)
     {
@@ -151,7 +151,7 @@ void InitGame(void)
         tubes[i].rec.height = 255;
 
         tubes[i+1].rec.x = tubesPos[i/2].x;
-        tubes[i+1].rec.y = 600 + tubesPos[i/2].y - 200;
+        tubes[i+1].rec.y = 600 + tubesPos[i/2].y - 240;
         tubes[i+1].rec.width = TUBES_WIDTH;
         tubes[i+1].rec.height = 255;
 
@@ -159,7 +159,7 @@ void InitGame(void)
         if ((i+2)%20 == 0)
         {
             portails[incrementPortail].rec.x = portailsPos[incrementPortail].x + 40;
-            portails[incrementPortail].rec.y = portailsPos[incrementPortail].y + 310;
+            portails[incrementPortail].rec.y = portailsPos[incrementPortail].y + 290;
             portails[incrementPortail].rec.width = TUBES_WIDTH/2;
             portails[incrementPortail].rec.height = 255/6;
             incrementPortail += 1;
