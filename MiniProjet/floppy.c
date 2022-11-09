@@ -15,6 +15,8 @@
 // gcc floppy.c -Wall -std=c11 /Users/ben/Documents/_IMT_NORD_EUROPE/M1/MLOD/Raylib.git/src/libraylib.a -lm  -Wno-missing-braces -s  -framework OpenGL -framework Cocoa -framework IOKit -framework CoreAudio -framework CoreVideo -DPLATFORM_DESKTOP
 // puis ./a.out 
 #include "raylib.h"
+#include <stdio.h>
+#include <time.h>
 
 #if defined(PLATFORM_WEB)
     #include <emscripten/emscripten.h>
@@ -26,6 +28,7 @@
 #define MAX_TUBES 100
 #define FLOPPY_RADIUS 24
 #define TUBES_WIDTH 80
+#define MAX_PORTAILS MAX_TUBES/10
 
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
@@ -42,6 +45,11 @@ typedef struct Tubes {
     bool active;
 } Tubes;
 
+typedef struct Portails {
+    Rectangle rec;
+    Color color;
+} Portails;
+
 //------------------------------------------------------------------------------------
 // Global Variables Declaration
 //------------------------------------------------------------------------------------
@@ -52,12 +60,17 @@ static bool gameOver = false;
 static bool pause = false;
 static int score = 0;
 static int hiScore = 0;
+static int posTuyauAvecPortail = 0;
+static int positionTuyauDizaine = 0;
+static int incrementPortail = 0;
 
 static Floppy floppy = { 0 };
 static Tubes tubes[MAX_TUBES*2] = { 0 };
 static Vector2 tubesPos[MAX_TUBES] = { 0 };
 static int tubesSpeedX = 0;
 static bool superfx = false;
+static Portails portails[MAX_PORTAILS] = { 0 };
+static Vector2 portailsPos[MAX_PORTAILS] = { 0 };
 
 //------------------------------------------------------------------------------------
 // Module Functions Declaration (local)
@@ -67,7 +80,7 @@ static void UpdateGame(void);       // Update game (one frame)
 static void DrawGame(void);         // Draw game (one frame)
 static void UnloadGame(void);       // Unload game
 static void UpdateDrawFrame(void);  // Update and Draw (one frame)
-
+static void UpdateGameBis(void);     // Update the game when a portal has been activated
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
@@ -75,7 +88,7 @@ int main(void)
 {
     // Initialization
     //---------------------------------------------------------
-    InitWindow(screenWidth, screenHeight, "classic game: floppy");
+    InitWindow(screenWidth, screenHeight, "classic game: floppy REMASTERED BY BENJAMIN PUZENAT");
 
     InitGame();
 
@@ -118,7 +131,17 @@ void InitGame(void)
     {
         tubesPos[i].x = 400 + 280*i;
         tubesPos[i].y = -GetRandomValue(0, 120);
+        if ((i+1)%10 == 0)
+        {
+            posTuyauAvecPortail = positionTuyauDizaine + GetRandomValue(0, 9);
+            portailsPos[incrementPortail].x = tubesPos[posTuyauAvecPortail].x;
+            portailsPos[incrementPortail].y = tubesPos[posTuyauAvecPortail].y;
+            positionTuyauDizaine += 10;
+            incrementPortail += 1;
+        }
     }
+
+    incrementPortail = 0;
 
     for (int i = 0; i < MAX_TUBES*2; i += 2)
     {
@@ -128,11 +151,19 @@ void InitGame(void)
         tubes[i].rec.height = 255;
 
         tubes[i+1].rec.x = tubesPos[i/2].x;
-        tubes[i+1].rec.y = 600 + tubesPos[i/2].y - 250;
+        tubes[i+1].rec.y = 600 + tubesPos[i/2].y - 200;
         tubes[i+1].rec.width = TUBES_WIDTH;
         tubes[i+1].rec.height = 255;
 
         tubes[i/2].active = true;
+        if ((i+2)%20 == 0)
+        {
+            portails[incrementPortail].rec.x = portailsPos[incrementPortail].x + 40;
+            portails[incrementPortail].rec.y = portailsPos[incrementPortail].y + 310;
+            portails[incrementPortail].rec.width = TUBES_WIDTH/2;
+            portails[incrementPortail].rec.height = 255/6;
+            incrementPortail += 1;
+        }
     }
 
     score = 0;
@@ -151,16 +182,100 @@ void UpdateGame(void)
 
         if (!pause)
         {
-            for (int i = 0; i < MAX_TUBES; i++) tubesPos[i].x -= tubesSpeedX;
+            for (int i = 0; i < MAX_TUBES; i++)
+            { 
+                tubesPos[i].x -= tubesSpeedX;
+            }
 
             for (int i = 0; i < MAX_TUBES*2; i += 2)
             {
                 tubes[i].rec.x = tubesPos[i/2].x;
-                tubes[i+1].rec.x = tubesPos[i/2].x;
+                tubes[i+1].rec.x = tubesPos[i/2].x;   
             }
 
-            if (IsKeyDown(KEY_SPACE) && !gameOver) floppy.position.y -= 3;
-            else floppy.position.y += 1;
+            for (int i = 0; i < MAX_PORTAILS; i++)
+            { 
+                portailsPos[i].x -= tubesSpeedX;
+                portails[i].rec.x = portailsPos[i].x;
+            }
+
+            if (IsKeyDown(KEY_SPACE) && !gameOver) floppy.position.y -= 4;
+            else floppy.position.y += 2;
+
+            // Check Collisions
+            for (int i = 0; i < MAX_TUBES*2; i++)
+            {
+                if (CheckCollisionCircleRec(floppy.position, floppy.radius, tubes[i].rec))
+                {
+                    gameOver = true;
+                    pause = false;
+                }
+                else if ((tubesPos[i/2].x < floppy.position.x) && tubes[i/2].active && !gameOver)
+                {
+                    score += 100;
+                    tubes[i/2].active = false;
+
+                    superfx = true;
+
+                    if (score > hiScore) hiScore = score;
+                }
+                
+                for (int i = 0; i < MAX_PORTAILS; i++)
+                {
+                    if (CheckCollisionPointRec(floppy.position, portails[i].rec))
+                    {   
+                        tubesSpeedX *= 3;
+                        floppy.radius /= 3;
+                        for(int i =1; i <= 60 * 5; i++)
+                        {
+                            UpdateGameBis();
+                            DrawGame();
+                        }
+                        tubesSpeedX /= 3;
+                        floppy.radius *= 3;
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        if (IsKeyPressed(KEY_ENTER))
+        {
+            InitGame();
+            gameOver = false;
+        }
+    }
+}
+
+// Update game when a portal has been activated (one frame)
+void UpdateGameBis(void)
+{
+    if (!gameOver)
+    {
+        if (IsKeyPressed('P')) pause = !pause;
+
+        if (!pause)
+        {
+            for (int i = 0; i < MAX_TUBES; i++)
+            { 
+                tubesPos[i].x -= tubesSpeedX;
+            }
+
+            for (int i = 0; i < MAX_TUBES*2; i += 2)
+            {
+                tubes[i].rec.x = tubesPos[i/2].x;
+                tubes[i+1].rec.x = tubesPos[i/2].x;   
+            }
+
+            for (int i = 0; i < MAX_PORTAILS; i++)
+            { 
+                portailsPos[i].x -= tubesSpeedX;
+                portails[i].rec.x = portailsPos[i].x;
+            }
+
+            if (IsKeyDown(KEY_SPACE) && !gameOver) floppy.position.y -= 4;
+            else floppy.position.y += 2;
 
             // Check Collisions
             for (int i = 0; i < MAX_TUBES*2; i++)
@@ -208,6 +323,11 @@ void DrawGame(void)
             {
                 DrawRectangle(tubes[i*2].rec.x, tubes[i*2].rec.y, tubes[i*2].rec.width, tubes[i*2].rec.height, PINK);
                 DrawRectangle(tubes[i*2 + 1].rec.x, tubes[i*2 + 1].rec.y, tubes[i*2 + 1].rec.width, tubes[i*2 + 1].rec.height, PINK);
+            }
+
+            for (int i = 0; i < MAX_PORTAILS; i++)
+            {
+                DrawRectangle(portails[i].rec.x, portails[i].rec.y, portails[i].rec.width, portails[i].rec.height, BLUE);
             }
 
             // Draw flashing fx (one frame only)
