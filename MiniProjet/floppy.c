@@ -28,7 +28,7 @@
 #define MAX_TUBES 100
 #define FLOPPY_RADIUS 24
 #define TUBES_WIDTH 80
-#define MAX_PORTAILS MAX_TUBES/10                    //je souhaite créer un portail par lot de 10 tuyaux
+#define MAX_PORTAILS MAX_TUBES/5                   //je souhaite créer un portail par lot de 5 tuyaux
 
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
@@ -77,7 +77,8 @@ static void UpdateGame(void);       // Update game (one frame)
 static void DrawGame(void);         // Draw game (one frame)
 static void UnloadGame(void);       // Unload game
 static void UpdateDrawFrame(void);  // Update and Draw (one frame)
-static void UpdateGameBis(void);     // Update the game when a portal has been activated
+static void UpdateGameBis(int);     // Update the game when a portal has been activated
+static void UpdateGameTer(void);    // // Update the game when a second portal has been activated
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
@@ -123,20 +124,21 @@ void InitGame(void)
     floppy.radius = FLOPPY_RADIUS;
     floppy.position = (Vector2){80, screenHeight/2 - floppy.radius};
     tubesSpeedX = 2;
-    int posTuyauAvecPortail = 0;
-    int positionTuyauDizaine = 0;
+    int posTuyauAvecPortail = 0;        //cette variable sert à choisir le numéro du tuyau qui sera dôté d'un portail
+    int positionTuyauMultipleCinq = 0;       //cette variable vaudra 0 puis 10 puis 20... et sert à 
     int incrementPortail = 0;
 
     for (int i = 0; i < MAX_TUBES; i++)
     {
         tubesPos[i].x = 400 + 280*i;
         tubesPos[i].y = -GetRandomValue(0, 120);
-        if ((i+1)%10 == 0)
+
+        if ((i+1)%5 == 0)
         {
-            posTuyauAvecPortail = positionTuyauDizaine + GetRandomValue(0, 9);
+            posTuyauAvecPortail = positionTuyauMultipleCinq + GetRandomValue(0, 4);
             portailsPos[incrementPortail].x = tubesPos[posTuyauAvecPortail].x;
             portailsPos[incrementPortail].y = tubesPos[posTuyauAvecPortail].y;
-            positionTuyauDizaine += 10;
+            positionTuyauMultipleCinq += 5;
             incrementPortail += 1;
         }
     }
@@ -156,7 +158,7 @@ void InitGame(void)
         tubes[i+1].rec.height = 255;
 
         tubes[i/2].active = true;
-        if ((i+2)%20 == 0)
+        if ((i+2)%10 == 0)
         {
             portails[incrementPortail].rec.x = portailsPos[incrementPortail].x + 40;
             portails[incrementPortail].rec.y = portailsPos[incrementPortail].y + 290;
@@ -172,6 +174,7 @@ void InitGame(void)
     superfx = false;
     pause = false;
 }
+
 
 // Update game (one frame)
 void UpdateGame(void)
@@ -221,18 +224,19 @@ void UpdateGame(void)
                 }
                 
                 for (int i = 0; i < MAX_PORTAILS; i++)
-                {
+                {   
+                    int compteurDeI = i;
                     if (CheckCollisionPointRec(floppy.position, portails[i].rec))
                     {   
                         tubesSpeedX *= 3;
                         floppy.radius /= 3;
                         for(int i =1; i <= 60 * 5; i++)
                         {
-                            UpdateGameBis();
+                            UpdateGameBis(compteurDeI);
                             DrawGame();
                         }
                         tubesSpeedX /= 3;
-                        floppy.radius *= 3;
+                        floppy.radius = FLOPPY_RADIUS;
                     }
                 }
             }
@@ -249,7 +253,82 @@ void UpdateGame(void)
 }
 
 // Update game when a portal has been activated (one frame)
-void UpdateGameBis(void)
+void UpdateGameBis(int compteurDeI)
+{
+    if (!gameOver)
+    {
+        if (IsKeyPressed('P')) pause = !pause;
+
+        if (!pause)
+        {
+            for (int i = 0; i < MAX_TUBES; i++)
+            { 
+                tubesPos[i].x -= tubesSpeedX;
+            }
+
+            for (int i = 0; i < MAX_TUBES*2; i += 2)
+            {
+                tubes[i].rec.x = tubesPos[i/2].x;
+                tubes[i+1].rec.x = tubesPos[i/2].x;   
+            }
+
+            for (int i = 0; i < MAX_PORTAILS; i++)
+            { 
+                portailsPos[i].x -= tubesSpeedX;
+                portails[i].rec.x = portailsPos[i].x;
+            }
+
+            if (IsKeyDown(KEY_SPACE) && !gameOver) floppy.position.y -= 4;
+            else floppy.position.y += 2;
+
+            // Check Collisions
+            for (int i = 0; i < MAX_TUBES*2; i++)
+            {
+                if (CheckCollisionCircleRec(floppy.position, floppy.radius, tubes[i].rec))
+                {
+                    gameOver = true;
+                    pause = false;
+                }
+                else if ((tubesPos[i/2].x < floppy.position.x) && tubes[i/2].active && !gameOver)
+                {
+                    score += 100;
+                    tubes[i/2].active = false;
+
+                    superfx = true;
+
+                    if (score > hiScore) hiScore = score;
+                }
+                
+                for (int i = compteurDeI + 1; i < MAX_PORTAILS; i++)
+                {
+                    if (CheckCollisionPointRec(floppy.position, portails[i].rec))
+                    {   
+                        tubesSpeedX *= 1.5;
+                        floppy.radius /= 3;
+                        for(int i =1; i <= 60 * 2; i++)
+                        {
+                            UpdateGameTer();
+                            DrawGame();
+                        }
+                        tubesSpeedX /= 1.5;
+                        floppy.radius = FLOPPY_RADIUS/3;
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        if (IsKeyPressed(KEY_ENTER))
+        {
+            InitGame();
+            gameOver = false;
+        }
+    }
+}
+
+// Update game when a second portal has been activated (one frame)
+void UpdateGameTer(void)
 {
     if (!gameOver)
     {

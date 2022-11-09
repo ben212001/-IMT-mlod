@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define TODO NULL;
-
 // retourne vrai si l est vide et faux sinon
 bool estVide(Liste l) {
 	return l == NULL;
@@ -12,9 +10,10 @@ bool estVide(Liste l) {
 // créer une liste d'un seul élément contenant la valeur v
 Liste creer(Element v){
 	Liste lst = (Liste) malloc(sizeof(Cellule));
-	if (!estVide(lst)){
-	lst->val = v;
-	lst->suiv =NULL;
+	if (!estVide(lst))
+	{
+		lst->val = v;
+		lst->suiv =NULL;
 	}
 	else{return 1;}
 	return lst;
@@ -133,53 +132,41 @@ Liste cherche_r(Element v,Liste l) {
 // ne fait rien si aucun élément possède cette valeur
 // version itérative
 Liste retirePremier_i(Element v, Liste l) {
-	Liste precedent, p;
-
-	if(estVide(l))
-		return l;
-
-	if(equalsElement(l->val,v)){
-		p = l->suiv;
-		l->suiv = NULL;
-		detruire_r(l);
-		return p;
+	Liste listeDeRech = cherche_i(v, l);
+	if(!estVide(listeDeRech)) {
+		if(equalsElement(l->val,v)) {
+			Liste p = l->suiv;
+			l->suiv = NULL;
+			detruire_r(l);
+			return p;
+		}
+		else {
+			Liste newL = l;
+			while (!equalsElement(v, newL->suiv->val)){
+				newL = newL->suiv;
+			}
+			newL->suiv = listeDeRech->suiv;
+			listeDeRech->suiv = NULL;
+			detruire_r(listeDeRech);
+			return(l);
+		}
 	}
-
-	precedent = l;
-	p = l->suiv;
-	while(!estVide(p) && !equalsElement(p->val,v)){
-		precedent = p;
-		p = p->suiv;
-	}
-
-	if(!estVide(p)){
-		//on a trouve v
-		precedent->suiv = p->suiv;
-		p->suiv = NULL;
-		detruire_r(p);
-	}
-
-	return l;
-
 }
-
 
 // version recursive
 Liste retirePremier_r(Element v, Liste l) {
-	Liste p;
-
-	if(estVide(l))
-		return l;
-
-	if(equalsElement(l->val,v)){
-		p = l->suiv;
-		l->suiv = NULL;
-		detruire_r(l);
-		return p;
+	if (!estVide(l)) {
+		if (equalsElement(l->val,v)) {
+			Liste p = l->suiv;
+			l->suiv = NULL;
+			detruire_r(l);
+			return p;
+		}
+		else {
+			l->suiv = retirePremier_r(v, l->suiv);
+			return l;
+		}
 	}
-
-	l->suiv = retirePremier_r(v,l->suiv);
-	return l;
 }
 
 
