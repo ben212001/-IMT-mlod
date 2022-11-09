@@ -25,7 +25,7 @@
 //----------------------------------------------------------------------------------
 // Some Defines
 //----------------------------------------------------------------------------------
-#define MAX_TUBES 100
+#define MAX_TUBES 200
 #define FLOPPY_RADIUS 24
 #define TUBES_WIDTH 80
 #define MAX_PORTAILS MAX_TUBES/5                   //je souhaite créer un portail par lot de 5 tuyaux
