@@ -125,25 +125,25 @@ void InitGame(void)
     floppy.position = (Vector2){80, screenHeight/2 - floppy.radius};
     tubesSpeedX = 2;
     int posTuyauAvecPortail = 0;        //cette variable sert à choisir le numéro du tuyau qui sera dôté d'un portail
-    int positionTuyauMultipleCinq = 0;       //cette variable vaudra 0 puis 10 puis 20... et sert à 
-    int incrementPortail = 0;
+    int positionTuyauMultipleCinq = 0;       //cette variable vaudra 0 puis 5 puis 10... et sert à initailiser posTuyauAvecPortail
+    int incrementPortail = 0;               //cette variable va permettre de parcourir toutes les éléments du tableau portailPos
 
     for (int i = 0; i < MAX_TUBES; i++)
     {
         tubesPos[i].x = 400 + 280*i;
         tubesPos[i].y = -GetRandomValue(0, 120);
 
-        if ((i+1)%5 == 0)
+        if ((i+1)%5 == 0)   //je parcours ce if tous les 5 passages dans le for, après que 5 nouveaux tuyaux ont été initialisés
         {
-            posTuyauAvecPortail = positionTuyauMultipleCinq + GetRandomValue(0, 4);
-            portailsPos[incrementPortail].x = tubesPos[posTuyauAvecPortail].x;
-            portailsPos[incrementPortail].y = tubesPos[posTuyauAvecPortail].y;
-            positionTuyauMultipleCinq += 5;
-            incrementPortail += 1;
+            posTuyauAvecPortail = positionTuyauMultipleCinq + GetRandomValue(0, 4);  // tirage au sort d'un des 5 nouveaux tuyaux créés qui sera alors dôté d'un portail 
+            portailsPos[incrementPortail].x = tubesPos[posTuyauAvecPortail].x;       // le portail prend les mêmes coordonées en abscisses que le tuyau qu'il complète
+            portailsPos[incrementPortail].y = tubesPos[posTuyauAvecPortail].y;       // le portail prend les mêmes coordonées en ordonnées que le tuyau qu'il complète
+            positionTuyauMultipleCinq += 5;         // cette variable est actualisée pour être prête à l'emploi lors du prochain passage dans le if
+            incrementPortail += 1;                  // idem
         }
     }
 
-    incrementPortail = 0;
+    incrementPortail = 0;  //on réinitialise cette variable pour pouvoir ensuite de nouveau parcourir les éléments du tableau portails
 
     for (int i = 0; i < MAX_TUBES*2; i += 2)
     {
@@ -153,18 +153,18 @@ void InitGame(void)
         tubes[i].rec.height = 255;
 
         tubes[i+1].rec.x = tubesPos[i/2].x;
-        tubes[i+1].rec.y = 600 + tubesPos[i/2].y - 240;
+        tubes[i+1].rec.y = 600 + tubesPos[i/2].y - 200;
         tubes[i+1].rec.width = TUBES_WIDTH;
         tubes[i+1].rec.height = 255;
 
         tubes[i/2].active = true;
-        if ((i+2)%10 == 0)
+        if ((i+2)%10 == 0)         // on passe dans le if tous les 5 passages dans le for, après que 5 couples de tuyaux supérieur-inférieur ont été positionnés
         {
-            portails[incrementPortail].rec.x = portailsPos[incrementPortail].x + 40;
-            portails[incrementPortail].rec.y = portailsPos[incrementPortail].y + 290;
-            portails[incrementPortail].rec.width = TUBES_WIDTH/2;
-            portails[incrementPortail].rec.height = 255/6;
-            incrementPortail += 1;
+            portails[incrementPortail].rec.x = portailsPos[incrementPortail].x;   //  on positionne le portail à la même abscisse que le tuyau
+            portails[incrementPortail].rec.y = portailsPos[incrementPortail].y + 290;   // on positionne le portail entre le tuyau supérieur et le tuyau inférieur
+            portails[incrementPortail].rec.width = TUBES_WIDTH/2;     // le portail fait la moitié de la largeur du tuyau
+            portails[incrementPortail].rec.height = 255/6;    // le portail fait 1/6 de la hauteur du tuyau
+            incrementPortail += 1;     // on incrémente pour pouvoir accéder au portail suivant lors du prochain passage dans le if
         }
     }
 
@@ -196,10 +196,10 @@ void UpdateGame(void)
                 tubes[i+1].rec.x = tubesPos[i/2].x;   
             }
 
-            for (int i = 0; i < MAX_PORTAILS; i++)
+            for (int i = 0; i < MAX_PORTAILS; i++) //pour chaque frame, on déplace TOUS les portails... 
             { 
-                portailsPos[i].x -= tubesSpeedX;
-                portails[i].rec.x = portailsPos[i].x;
+                portailsPos[i].x -= tubesSpeedX;  // ...à la même vitesse de défilement que les tuyaux
+                portails[i].rec.x = portailsPos[i].x; // on actualise donc la position du portail
             }
 
             if (IsKeyDown(KEY_SPACE) && !gameOver) floppy.position.y -= 4;
@@ -223,20 +223,20 @@ void UpdateGame(void)
                     if (score > hiScore) hiScore = score;
                 }
                 
-                for (int i = 0; i < MAX_PORTAILS; i++)
+                for (int i = 0; i < MAX_PORTAILS; i++)      // //pour chaque frame, on vérifie pour TOUS les portails... 
                 {   
-                    int compteurDeI = i;
-                    if (CheckCollisionPointRec(floppy.position, portails[i].rec))
-                    {   
-                        tubesSpeedX *= 3;
-                        floppy.radius /= 3;
-                        for(int i =1; i <= 60 * 5; i++)
+                    int compteurDeI = i;  // sera utile pour l'appel de la fonction UpdateGameBis
+                    if (CheckCollisionPointRec(floppy.position, portails[i].rec))  // ...si le CENTRE de floppy n'a pas percuté un de ces portails (ses bordures peuvent toucher les portails sans les activer)
+                    {   //en cas de percussion de floppy avec un portail:
+                        tubesSpeedX *= 3;   // on mutiplie par 3 la vitesse de défilemet du jeu
+                        floppy.radius /= 3;     //on réduit d'un facteur 3 la taille de floppy
+                        for(int i =1; i <= 60 * 5; i++)  //en considérant que chaque seconde compte 60 frames, on maintient les 2 changements précédents pendant 5sec.
                         {
-                            UpdateGameBis(compteurDeI);
-                            DrawGame();
+                            UpdateGameBis(compteurDeI);  //on continue à faire tourner le jeu via UpdateGameBis mais sans considérer le tuyau qui a été actionné, ni ceux d'avant d'ailleurs (sinon la fonction UpdateGame s'appelle à chaque frame, répétant les 2 changements précédents à chaque frame et entraînant une injouabilité (vitesse augmente beaucoup trop vite))
+                            DrawGame(); // on actualise l'affichage du jeu 
                         }
-                        tubesSpeedX /= 3;
-                        floppy.radius = FLOPPY_RADIUS;
+                        tubesSpeedX /= 3;  // on retourne aux paramètres initiaux
+                        floppy.radius = FLOPPY_RADIUS;  // on retourne aux paramètres initiaux
                     }
                 }
             }
@@ -299,19 +299,19 @@ void UpdateGameBis(int compteurDeI)
                     if (score > hiScore) hiScore = score;
                 }
                 
-                for (int i = compteurDeI + 1; i < MAX_PORTAILS; i++)
+                for (int i = compteurDeI + 1; i < MAX_PORTAILS; i++)    //pour chaque frame, on vérifie pour TOUS les portails... 
                 {
-                    if (CheckCollisionPointRec(floppy.position, portails[i].rec))
+                    if (CheckCollisionPointRec(floppy.position, portails[i].rec))  // ...si le centre de floppy n'a pas percuté un de ces portails (ses bordures peuvent toucher les portails sans les activer)
                     {   
-                        tubesSpeedX *= 1.5;
-                        floppy.radius /= 3;
-                        for(int i =1; i <= 60 * 2; i++)
+                        tubesSpeedX *= 1.5;  // on mutiplie par 1,5 la vitesse de défilemet du jeu
+                        floppy.radius /= 3;     //on réduit d'un facteur 3 la taille de floppy
+                        for(int i =1; i <= 60 * 2; i++)     //en considérant que chaque seconde compte 60 frames, on maintient les 2 changements précédents pour 2sec.
                         {
-                            UpdateGameTer();
-                            DrawGame();
+                            UpdateGameTer();        //on continue à faire tourner le jeu via UpdateGameTer
+                            DrawGame();         // on actualise l'affichage du jeu 
                         }
-                        tubesSpeedX /= 1.5;
-                        floppy.radius = FLOPPY_RADIUS/3;
+                        tubesSpeedX /= 1.5;     // on retourne aux paramètres initiaux
+                        floppy.radius = FLOPPY_RADIUS/3;        // on retourne aux paramètres initiaux
                     }
                 }
             }
@@ -327,7 +327,7 @@ void UpdateGameBis(int compteurDeI)
     }
 }
 
-// Update game when a second portal has been activated (one frame)
+// Update game when a second portal has been activated (one frame). La particularité est que dorénavant la collision avec un 3ème portail, alors que les effets des 2 premiers sont toujours actifs, n'active aucun effet (la vitesse de jeu serait trop rapide sinon)
 void UpdateGameTer(void)
 {
     if (!gameOver)
@@ -373,7 +373,7 @@ void UpdateGameTer(void)
 
                     if (score > hiScore) hiScore = score;
                 }
-            }
+            }  // ici on n'ajoute pas la boucle qui contrôle les collisions entre floppy et les portails car on ne souhaite pas que les portails aient des effets
         }
     }
     else
@@ -404,7 +404,7 @@ void DrawGame(void)
                 DrawRectangle(tubes[i*2 + 1].rec.x, tubes[i*2 + 1].rec.y, tubes[i*2 + 1].rec.width, tubes[i*2 + 1].rec.height, PINK);
             }
 
-            for (int i = 0; i < MAX_PORTAILS; i++)
+            for (int i = 0; i < MAX_PORTAILS; i++) //on dessine les portails, de manière analogue au dessin des tuyaux (cf juste au dessus)
             {
                 DrawRectangle(portails[i].rec.x, portails[i].rec.y, portails[i].rec.width, portails[i].rec.height, BLUE);
             }
@@ -422,8 +422,8 @@ void DrawGame(void)
             if (pause) DrawText("GAME PAUSED", screenWidth/2 - MeasureText("GAME PAUSED", 40)/2, screenHeight/2 - 40, 40, GRAY);
         }
         else {DrawText("PRESS [ENTER] TO PLAY AGAIN", GetScreenWidth()/2 - MeasureText("PRESS [ENTER] TO PLAY AGAIN", 20)/2, GetScreenHeight()/2 - 50, 20, ORANGE);
-            DrawText(TextFormat("FINAL SCORE: %04i", score), 200, 260, 40, YELLOW);
-            DrawText(TextFormat("HI-SCORE: %04i", hiScore), 320, 300, 20, GOLD);
+            DrawText(TextFormat("FINAL SCORE: %04i", score), 200, 260, 40, YELLOW);  //le score final s'affiche quand même une fois la partie terminée
+            DrawText(TextFormat("HI-SCORE: %04i", hiScore), 320, 300, 20, GOLD);    //le high-score s'affiche quand même une fois la partie terminée
         }
     EndDrawing();
 }
