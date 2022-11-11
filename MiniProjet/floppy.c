@@ -240,6 +240,11 @@ void UpdateGame(void)
                     }
                 }
             }
+            if (score >= 20000) //si le joueur a gagné
+            {
+                gameOver = true; //fin du jeu
+                pause = false;
+            }
         }
     }
     else
@@ -421,9 +426,21 @@ void DrawGame(void)
 
             if (pause) DrawText("GAME PAUSED", screenWidth/2 - MeasureText("GAME PAUSED", 40)/2, screenHeight/2 - 40, 40, GRAY);
         }
-        else {DrawText("PRESS [ENTER] TO PLAY AGAIN", GetScreenWidth()/2 - MeasureText("PRESS [ENTER] TO PLAY AGAIN", 20)/2, GetScreenHeight()/2 - 50, 20, ORANGE);
-            DrawText(TextFormat("FINAL SCORE: %04i", score), 200, 260, 40, YELLOW);  //le score final s'affiche quand même une fois la partie terminée
-            DrawText(TextFormat("HI-SCORE: %04i", hiScore), 320, 300, 20, GOLD);    //le high-score s'affiche quand même une fois la partie terminée
+        else 
+        {   
+            if(score >= 20000) //si le joueur a gagné
+            {
+                DrawText("CONGRATULATIONS !! YOU WIN :)", GetScreenWidth()/2 - MeasureText("PRESS [ENTER] TO PLAY AGAIN", 20)/2 - 150, GetScreenHeight()/2 - 100, 40, GOLD); // Félicitations pour la victoire
+                DrawText("PRESS [ENTER] TO PLAY AGAIN", GetScreenWidth()/2 - MeasureText("PRESS [ENTER] TO PLAY AGAIN", 20)/2, GetScreenHeight()/2, 20, ORANGE);
+                DrawText(TextFormat("FINAL SCORE: %04i", score), 200, 260, 40, YELLOW);  //le score final s'affiche quand même une fois la partie terminée
+                DrawText(TextFormat("HI-SCORE: %04i", hiScore), 320, 300, 20, GOLD);    //le high-score s'affiche quand même une fois la partie terminée
+            }
+            else
+            {
+                DrawText("PRESS [ENTER] TO PLAY AGAIN", GetScreenWidth()/2 - MeasureText("PRESS [ENTER] TO PLAY AGAIN", 20)/2, GetScreenHeight()/2 - 50, 20, ORANGE);
+                DrawText(TextFormat("FINAL SCORE: %04i", score), 200, 260, 40, YELLOW);  //le score final s'affiche quand même une fois la partie terminée
+                DrawText(TextFormat("HI-SCORE: %04i", hiScore), 320, 300, 20, GOLD);    //le high-score s'affiche quand même une fois la partie terminée
+            }
         }
     EndDrawing();
 }
