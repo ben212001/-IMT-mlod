@@ -1,4 +1,4 @@
-# imt_mlod_c
+# [IMT]mlod
 
 Ce dépôt était mon espace de travail lors de mon 2ème mois d'étude dans ma seconde année à IMT Nord Europe (Grande Ecole d'ingénieur issue de la fusion de l'Ecole des Mines de Douai et de Télécom Lille) dans le cadre du cours "Modèles, Langages et Outils de Développement" (MLOD). Cette année-là constituait ma première année de spécialisation dans le domaine numérique.
 
