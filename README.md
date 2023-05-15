@@ -1,6 +1,6 @@
 # imt_mlod_c
 
-Ce dépôt était mon espace de travail lors de mon 2ème mois d'étude dans ma seconde année à IMT Nord Europe (Grande Ecole d'ingénieur issue de la fusion de l'Ecole des Mines de Douai et de Télécom Lille). Cette année-là constituait ma première année de spécialisation dans le domaine numérique.
+Ce dépôt était mon espace de travail lors de mon 2ème mois d'étude dans ma seconde année à IMT Nord Europe (Grande Ecole d'ingénieur issue de la fusion de l'Ecole des Mines de Douai et de Télécom Lille) dans le cadre du cours "Modèles, Langages et Outils de Développement" (MLOD). Cette année-là constituait ma première année de spécialisation dans le domaine numérique.
 
 Durant ce mois, j'ai pu apprendre les rudiments du code en C au travers de différents TP qui ne sont pas forcément terminés car le cours était très dense mais qui m'ont permis d'acquérir de bonnes bases.
 
